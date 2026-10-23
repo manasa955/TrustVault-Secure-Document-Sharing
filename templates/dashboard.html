@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block content %}<div class="heading"><div><h1>Documents</h1><p>Only documents you own or have been granted access to appear here.</p></div>
+{% if g.user.role == 'admin' %}<a class="button" href="{{ url_for('activity') }}">Admin activity</a>{% endif %}</div>
+{% if g.user.role == 'owner' %}<section class="card"><h2>Upload a document</h2><form method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><div class="formrow"><label>File (PDF, TXT, PNG, JPG, DOCX; max 5 MB)<input type="file" name="file" required></label>
+<label>Category<input name="category" maxlength="60" placeholder="Contracts, HR, Reports"></label></div><button>Upload document</button></form></section>{% endif %}
+<section class="card"><h2>Search documents</h2><form method="get" class="formrow"><label>Name or owner<input name="q" value="{{ q }}" placeholder="Search..."></label><label>Category<input name="category" value="{{ category }}"></label><label>Date (YYYY-MM-DD)<input name="date" type="date" value="{{ date }}"></label><button>Search</button><a class="button secondary" href="{{ url_for('dashboard') }}">Clear</a></form></section>
+<section class="card"><h2>Available documents</h2>{% if docs %}<div class="tablewrap"><table><thead><tr><th>Document</th><th>Owner</th><th>Category</th><th>Created</th><th>Access</th><th>Actions</th></tr></thead><tbody>
+{% for d in docs %}<tr><td>{{ d.original_name }}</td><td>{{ d.owner_name }}</td><td>{{ d.category }}</td><td>{{ d.created_at[:10] }}</td><td>{{ d.my_permission }}</td><td class="actions"><a href="{{ url_for('download', doc_id=d.id) }}">Download</a>
+{% if g.user.role == 'owner' and d.owner_id == g.user.id %}
+<form method="post" action="{{ url_for('share', doc_id=d.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input name="username" placeholder="Username" required><select name="permission"><option value="read">Read</option><option value="edit">Edit</option></select><button class="small">Share</button></form>
+<form method="post" action="{{ url_for('revoke', doc_id=d.id) }}" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input name="username" placeholder="Username to revoke" required><button class="small secondary">Revoke</button></form>
+<form method="post" action="{{ url_for('delete_document', doc_id=d.id) }}" class="inline" onsubmit="return confirm('Delete this document permanently?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="small danger">Delete</button></form>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p>No accessible documents found. Owners can upload a document to get started.</p>{% endif %}</section>
+{% if g.user.role == 'admin' %}<p><a href="{{ url_for('activity') }}">Open admin activity dashboard →</a></p>{% endif %}{% endblock %}

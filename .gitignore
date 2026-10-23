@@ -1,0 +1,21 @@
+# Python virtual environments
+.venv/
+venv/
+
+# Secret keys and environment variables
+.env
+.env.*
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local database and private uploads
+instance/trustvault.sqlite3
+instance/private_uploads/
+
+# Other local databases
+*.db
+*.sqlite
+*.sqlite3
